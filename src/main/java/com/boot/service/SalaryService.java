@@ -12,10 +12,13 @@ import java.util.stream.Collectors;
 
 @Service
 public class SalaryService {
-    @Autowired
-    SalaryWorkerService salaryWorkerService;
-    @Autowired
+
     WorkerService workerService;
+
+    @Autowired
+    public SalaryService(WorkerService workerService) {
+        this.workerService = workerService;
+    }
 
     public Set<Salary> getAll(){
         Set<Salary> salaries = workerService.getAll().stream()

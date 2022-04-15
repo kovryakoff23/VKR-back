@@ -7,8 +7,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ReportsService {
-    @Autowired
+
     UnitService unitService;
+
+    @Autowired
+    public ReportsService(UnitService unitService) {
+        this.unitService = unitService;
+    }
+
     public Reports getReport(Long unitId){
         Unit unit = unitService.get(unitId);
         Long sumSalaries = unit.getUnitProductionWorks().stream()

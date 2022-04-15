@@ -9,11 +9,16 @@ import java.util.List;
 
 @Service
 public class UnitUpkeepService implements ServiceMag<UnitUpkeep>{
-    @Autowired
     UnitUpkeepRepository unitUpkeepRepository;
+
+    @Autowired
+    public UnitUpkeepService(UnitUpkeepRepository unitUpkeepRepository) {
+        this.unitUpkeepRepository = unitUpkeepRepository;
+    }
+
     @Override
     public UnitUpkeep get(long id) {
-        return unitUpkeepRepository.findById(id).get();
+        return unitUpkeepRepository.findById(id).orElseThrow(IllegalArgumentException::new);
     }
 
     @Override

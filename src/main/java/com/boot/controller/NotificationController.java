@@ -13,8 +13,13 @@ import java.util.Set;
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
 public class NotificationController {
-    @Autowired
+
     NotificationService notificationService;
+
+    @Autowired
+    public NotificationController(NotificationService notificationService) {
+        this.notificationService = notificationService;
+    }
 
     @GetMapping("notification")
     public List<Notification> getNotification() {

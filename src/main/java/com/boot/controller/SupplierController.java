@@ -15,14 +15,19 @@ import java.util.Set;
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
 public class SupplierController {
-    @Autowired
+
     SuppliersService suppliersService;
-    @Autowired
     SupplierPositionsService supplierPositionsService;
-    @Autowired
     PaymentService paymentService;
-    @Autowired
     PaymentSupplierService paymentSupplierService;
+
+    @Autowired
+    public SupplierController(SuppliersService suppliersService, SupplierPositionsService supplierPositionsService, PaymentService paymentService, PaymentSupplierService paymentSupplierService) {
+        this.suppliersService = suppliersService;
+        this.supplierPositionsService = supplierPositionsService;
+        this.paymentService = paymentService;
+        this.paymentSupplierService = paymentSupplierService;
+    }
 
     @GetMapping("/suppliersPayment")
     public Set<Payment> getPayment() {

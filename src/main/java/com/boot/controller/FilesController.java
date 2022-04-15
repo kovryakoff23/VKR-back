@@ -18,8 +18,14 @@ import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBui
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
 public class FilesController {
-    @Autowired
+
     FilesStorageService storageService;
+
+    @Autowired
+    public FilesController(FilesStorageService storageService) {
+        this.storageService = storageService;
+    }
+
     @PostMapping("/upload")
     public ResponseEntity<ResponseMessage> uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("unitId") String unitId) {
         System.out.println("id = "+unitId);

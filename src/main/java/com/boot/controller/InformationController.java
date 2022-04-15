@@ -17,8 +17,13 @@ import java.util.stream.Collectors;
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
 public class InformationController {
-   @Autowired
+
    InformationService informationService;
+
+   @Autowired
+    public InformationController(InformationService informationService) {
+        this.informationService = informationService;
+    }
 
     @GetMapping("/information")
     public ResponseEntity<List<FileInfo>> getListFiles() {

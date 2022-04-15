@@ -16,18 +16,21 @@ import java.util.Set;
 
 @Service
 public class UnitProductionPositionService  implements ServiceMag<UnitProductionPosition>{
-    @Autowired
+
     UnitProductionPositionRepository unitProductionPositionRepository;
-    @Autowired
     UnitService unitService;
-    @Autowired
     SalaryWorkerService salaryWorkerService;
+
     @Autowired
-    SessionFactory factory;
+    public UnitProductionPositionService(UnitProductionPositionRepository unitProductionPositionRepository, UnitService unitService, SalaryWorkerService salaryWorkerService) {
+        this.unitProductionPositionRepository = unitProductionPositionRepository;
+        this.unitService = unitService;
+        this.salaryWorkerService = salaryWorkerService;
+    }
 
     @Override
     public UnitProductionPosition get(long id) {
-        return unitProductionPositionRepository.findById(id).get();
+        return unitProductionPositionRepository.findById(id).orElseThrow(IllegalArgumentException::new);
     }
 
     @Override
@@ -50,40 +53,29 @@ public class UnitProductionPositionService  implements ServiceMag<UnitProduction
                     entity.getWorker(),
                     entity);
             entity.setSalaryWorker(salaryWorker);
-            Session session = factory.openSession();
-            session.beginTransaction();
-            session.save(entity);
-            session.getTransaction().commit();
-            session.close();
         }
         else {
             UnitProductionPosition unitProductionPosition =this.get(entity.getId());
             salaryWorker = unitProductionPosition.getSalaryWorker();
             salaryWorker.setWorker(entity.getWorker());
             entity.setSalaryWorker(salaryWorker);
-            Session session = factory.openSession();
-            session.beginTransaction();
-            session.update(salaryWorker);
-            session.update(entity);
-            session.getTransaction().commit();
-            session.close();
         }
+        unitProductionPositionRepository.save(entity);
     }
 
     public void update(UnitProductionPosition entity) {
         SalaryWorker salaryWorker = this.get(entity.getId()).getSalaryWorker();
         salaryWorker.setStatus(!entity.isStatus());
         entity.setSalaryWorker(salaryWorker);
-        Session session = factory.openSession();
-        session.beginTransaction();
-        session.update(entity);
-        session.getTransaction().commit();
-        session.close();
+
+        salaryWorkerService.save(salaryWorker);
+        unitProductionPositionRepository.save(entity);
     }
     @Override
     public void delete(long id) {
         unitProductionPositionRepository.deleteById(id);
     }
+
     public Set<Worker> getWorker(Long unitId){
         Set<Worker> workers = new HashSet<>();
         List<UnitProductions> unitProductionWorks = unitService.get(unitId).getUnitProductionWorks();

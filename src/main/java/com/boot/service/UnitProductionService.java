@@ -13,15 +13,20 @@ import java.util.List;
 
 @Service
 public class UnitProductionService implements ServiceMag<UnitProductions>{
-    @Autowired
+
     UnitProductionRepository unitProductionRepository;
-    @PersistenceContext
-    private EntityManager em;
-    @Autowired
+
     UnitProductionPositionService unitProductionPositionService;
+
+    @Autowired
+    public UnitProductionService(UnitProductionRepository unitProductionRepository, UnitProductionPositionService unitProductionPositionService) {
+        this.unitProductionRepository = unitProductionRepository;
+        this.unitProductionPositionService = unitProductionPositionService;
+    }
+
     @Override
     public UnitProductions get(long id) {
-        return unitProductionRepository.findById(id).get();
+        return unitProductionRepository.findById(id).orElseThrow(IllegalArgumentException::new);
     }
 
     @Override
@@ -46,9 +51,7 @@ public class UnitProductionService implements ServiceMag<UnitProductions>{
     }
 
     public List<UnitProductions> getAllActive(){
-        return em.createQuery("SELECT U FROM UnitProductions U WHERE status = true", UnitProductions.class).getResultList();
+        return unitProductionRepository.findByStatusTrue();
     }
-//    public List<UnitProductionWorks> findAllById(Long unitId){
-//        return unitProductionRepository.findAllById(unitId);
-//    }
+
 }

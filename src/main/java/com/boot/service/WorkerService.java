@@ -14,14 +14,17 @@ import java.util.List;
 
 @Service
 public class WorkerService implements ServiceMag<Worker> {
-    @PersistenceContext
-    private EntityManager em;
-    @Autowired
+
     WorkerRepository workerRepository;
+
+    @Autowired
+    public WorkerService(WorkerRepository workerRepository) {
+        this.workerRepository = workerRepository;
+    }
 
     @Override
     public Worker get(long id) {
-        return workerRepository.findById(id).get();
+        return workerRepository.findById(id).orElseThrow(IllegalArgumentException::new);
     }
 
     @Override
@@ -41,7 +44,6 @@ public class WorkerService implements ServiceMag<Worker> {
 
     public List<Worker> getAllSearch(String search) {
         search=search+"%";
-        return em.createQuery("SELECT W FROM Worker W WHERE UPPER(W.name) LIKE UPPER(:paramId)", Worker.class)
-                .setParameter("paramId", search).getResultList();
+        return workerRepository.findByName(search);
     }
 }

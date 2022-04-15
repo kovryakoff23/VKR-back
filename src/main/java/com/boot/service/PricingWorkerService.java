@@ -11,11 +11,16 @@ import java.util.List;
 
 @Service
 public class PricingWorkerService implements ServiceMag<PricingWorker> {
-    @Autowired
     PricingWorkerRepository pricingWorkerRepository;
+
+    @Autowired
+    public PricingWorkerService(PricingWorkerRepository pricingWorkerRepository) {
+        this.pricingWorkerRepository = pricingWorkerRepository;
+    }
+
     @Override
     public PricingWorker get(long id) {
-        return pricingWorkerRepository.findById(id).get();
+        return pricingWorkerRepository.findById(id).orElseThrow(IllegalArgumentException::new);
     }
 
     @Override

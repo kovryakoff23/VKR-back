@@ -13,10 +13,14 @@ import java.util.stream.Collectors;
 
 @Service
 public class PaymentService {
-    @Autowired
     PaymentSupplierService paymentSupplierService;
-    @Autowired
     SuppliersService suppliersService;
+
+    @Autowired
+    public PaymentService(PaymentSupplierService paymentSupplierService, SuppliersService suppliersService) {
+        this.paymentSupplierService = paymentSupplierService;
+        this.suppliersService = suppliersService;
+    }
 
     public Set<Payment> getAll(){
         Set<Payment> payments = suppliersService.getAll().stream()

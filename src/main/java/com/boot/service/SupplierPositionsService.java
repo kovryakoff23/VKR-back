@@ -9,11 +9,16 @@ import java.util.List;
 
 @Service
 public class SupplierPositionsService implements ServiceMag<SupplierPositions>{
-    @Autowired
     SuppliersPositionsRepository supplierPositionsRepository;
+
+    @Autowired
+    public SupplierPositionsService(SuppliersPositionsRepository supplierPositionsRepository) {
+        this.supplierPositionsRepository = supplierPositionsRepository;
+    }
+
     @Override
     public SupplierPositions get(long id) {
-        return supplierPositionsRepository.findById(id).get();
+        return supplierPositionsRepository.findById(id).orElseThrow(IllegalArgumentException::new);
     }
 
     @Override

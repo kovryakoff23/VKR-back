@@ -13,24 +13,28 @@ import java.util.Set;
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
 public class UnitController {
-    @Autowired
     UnitService unitService;
-    @Autowired
     UnitProductionService unitProductionService;
-    @Autowired
     UnitDeliveriesService unitDeliveriesService;
-    @Autowired
     UnitDeliveriesPositionService unitDeliveriesPositionService;
-    @Autowired
     UnitProductionPositionService unitProductionPositionService;
-    @Autowired
     DocumentationService documentationService;
-    @Autowired
     ReportsService reportsService;
-    @Autowired
     UnitUpkeepService unitUpkeepService;
-    @Autowired
     UnitEquipmentRentalService unitEquipmentRentalService;
+
+    @Autowired
+    public UnitController(UnitService unitService, UnitProductionService unitProductionService, UnitDeliveriesService unitDeliveriesService, UnitDeliveriesPositionService unitDeliveriesPositionService, UnitProductionPositionService unitProductionPositionService, DocumentationService documentationService, ReportsService reportsService, UnitUpkeepService unitUpkeepService, UnitEquipmentRentalService unitEquipmentRentalService) {
+        this.unitService = unitService;
+        this.unitProductionService = unitProductionService;
+        this.unitDeliveriesService = unitDeliveriesService;
+        this.unitDeliveriesPositionService = unitDeliveriesPositionService;
+        this.unitProductionPositionService = unitProductionPositionService;
+        this.documentationService = documentationService;
+        this.reportsService = reportsService;
+        this.unitUpkeepService = unitUpkeepService;
+        this.unitEquipmentRentalService = unitEquipmentRentalService;
+    }
 
     @GetMapping("/units")
     public List<Unit> getUnit() {
@@ -95,11 +99,11 @@ public class UnitController {
 
     @PostMapping("/units/deliver")
     public void setDeliveriesPositions(@RequestBody UnitDeliveriesPosition unitDeliveriesPosition) {
-//        try {
+        try {
             unitDeliveriesPositionService.save(unitDeliveriesPosition);
-//        }catch(Exception e){
-//            System.out.println("error input");
-//        }
+        }catch(Exception e){
+            System.out.println("error input");
+        }
     }
     @PutMapping ("/units/deliver")
     public void updateDeliveriesPositions(@RequestBody UnitDeliveriesPosition unitDeliveriesPosition) {
@@ -111,11 +115,11 @@ public class UnitController {
     }
     @DeleteMapping("units/deliver/{deliverPositionId}")
     public void deleteDeliveriesPositions(@PathVariable("deliverPositionId") Long deliverPositionId) {
-//        try {
+        try {
             unitDeliveriesPositionService.delete(deliverPositionId);
-//        }catch(Exception e){
-//            System.out.println("error input");
-//        }
+        }catch(Exception e){
+            System.out.println("error input");
+        }
     }
 
     @GetMapping("units/production/{unitId}")

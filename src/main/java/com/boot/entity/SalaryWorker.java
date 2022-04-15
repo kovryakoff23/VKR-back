@@ -25,7 +25,7 @@ public class SalaryWorker {
     @JoinColumn(name = "worker_id")
     Worker worker;
     @JsonIgnore
-    @OneToOne(mappedBy = "salaryWorker", fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "salaryWorker",cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.CASCADE)
     UnitProductionPosition unitProductionPosition;
 

@@ -19,18 +19,18 @@ import java.util.stream.Collectors;
 
 @Service
 public class SalaryWorkerService implements ServiceMag<SalaryWorker> {
-    @Autowired
     SalaryWorkerRepository salaryWorkerRepository;
-    @Autowired
     WorkerService workerService;
+
     @Autowired
-    SessionFactory factory;
-    @PersistenceContext
-    private EntityManager em;
+    public SalaryWorkerService(SalaryWorkerRepository salaryWorkerRepository, WorkerService workerService) {
+        this.salaryWorkerRepository = salaryWorkerRepository;
+        this.workerService = workerService;
+    }
 
     @Override
     public SalaryWorker get(long id) {
-        return salaryWorkerRepository.findById(id).get();
+        return salaryWorkerRepository.findById(id).orElseThrow(IllegalArgumentException::new);
     }
 
     @Override
@@ -44,11 +44,7 @@ public class SalaryWorkerService implements ServiceMag<SalaryWorker> {
     }
 
     public void update(SalaryWorker entity) {
-        Session session = factory.openSession();
-        session.beginTransaction();
-        session.update(entity);
-        session.getTransaction().commit();
-        session.close();
+        salaryWorkerRepository.save(entity);
     }
     @Override
     public void delete(long id) {
@@ -64,6 +60,6 @@ public class SalaryWorkerService implements ServiceMag<SalaryWorker> {
     }
     @Synchronized
     public List<SalaryWorker> getAllActive(){
-        return em.createQuery("SELECT U FROM SalaryWorker U WHERE status = true", SalaryWorker.class).getResultList();
+        return salaryWorkerRepository.findByStatusTrue();
     }
 }

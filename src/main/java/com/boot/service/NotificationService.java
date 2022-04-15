@@ -9,12 +9,17 @@ import java.util.List;
 
 @Service
 public class NotificationService implements ServiceMag<Notification> {
-    @Autowired
+
     NotificationRepository notificationRepository;
+
+    @Autowired
+    public NotificationService(NotificationRepository notificationRepository) {
+        this.notificationRepository = notificationRepository;
+    }
 
     @Override
     public Notification get(long id) {
-        return notificationRepository.findById(id).get();
+        return notificationRepository.findById(id).orElseThrow(IllegalArgumentException::new);
     }
 
     @Override

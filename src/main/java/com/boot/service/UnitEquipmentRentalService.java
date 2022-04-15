@@ -9,11 +9,16 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 @Service
 public class UnitEquipmentRentalService implements ServiceMag<UnitEquipmentRental>{
-    @Autowired
     UnitEquipmentRentalRepository unitEquipmentRentalRepository;
+
+    @Autowired
+    public UnitEquipmentRentalService(UnitEquipmentRentalRepository unitEquipmentRentalRepository) {
+        this.unitEquipmentRentalRepository = unitEquipmentRentalRepository;
+    }
+
     @Override
     public UnitEquipmentRental get(long id) {
-        return unitEquipmentRentalRepository.findById(id).get();
+        return unitEquipmentRentalRepository.findById(id).orElseThrow(IllegalArgumentException::new);
     }
 
     @Override

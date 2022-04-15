@@ -13,16 +13,17 @@ import java.util.List;
 
 @Service
 public class UnitDeliveriesPositionService implements ServiceMag<UnitDeliveriesPosition>{
-    @Autowired
+
     UnitDeliveriesPositionRepository unitDeliveriesPositionRepository;
+
     @Autowired
-    PaymentSupplierService paymentSupplierService;
-    @Autowired
-    SessionFactory  factory;
+    public UnitDeliveriesPositionService(UnitDeliveriesPositionRepository unitDeliveriesPositionRepository) {
+        this.unitDeliveriesPositionRepository = unitDeliveriesPositionRepository;
+    }
 
     @Override
     public UnitDeliveriesPosition get(long id) {
-        return unitDeliveriesPositionRepository.findById(id).get();
+        return unitDeliveriesPositionRepository.findById(id).orElseThrow(IllegalArgumentException::new);
     }
 
     @Override
@@ -44,34 +45,21 @@ public class UnitDeliveriesPositionService implements ServiceMag<UnitDeliveriesP
                     entity.getSuppliers());
             paymentSupplier.setUnitDeliveriesPosition(null);
             entity.setPaymentSupplier(paymentSupplier);
-            Session session = factory.openSession();
-            session.beginTransaction();
-            session.save(entity);
-            session.getTransaction().commit();
-            session.close();
         }
         else {
             UnitDeliveriesPosition unitProductionPosition =this.get(entity.getId());
             paymentSupplier = unitProductionPosition.getPaymentSupplier();
             paymentSupplier.setSuppliers(entity.getSuppliers());
             entity.setPaymentSupplier(paymentSupplier);
-            Session session = factory.openSession();
-            session.beginTransaction();
-            session.update(entity);
-            session.getTransaction().commit();
-            session.close();
         }
+        unitDeliveriesPositionRepository.save(entity);
     }
 
     public void update(UnitDeliveriesPosition entity) {
         PaymentSupplier paymentSupplier = this.get(entity.getId()).getPaymentSupplier();
         paymentSupplier.setStatus(!entity.isStatus());
         entity.setPaymentSupplier(paymentSupplier);
-        Session session = factory.openSession();
-        session.beginTransaction();
-        session.update(entity);
-        session.getTransaction().commit();
-        session.close();
+        unitDeliveriesPositionRepository.save(entity);
     }
     @Override
     public void delete(long id) {

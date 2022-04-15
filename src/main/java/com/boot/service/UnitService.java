@@ -12,13 +12,17 @@ import java.util.List;
 
 @Service
 public class UnitService implements ServiceMag<Unit> {
-    @PersistenceContext
-    private EntityManager em;
-    @Autowired
+
     UnitRepository unitRepository;
+
+    @Autowired
+    public UnitService(UnitRepository unitRepository) {
+        this.unitRepository = unitRepository;
+    }
+
     @Override
     public Unit get(long id) {
-       return unitRepository.findById(id).get();
+       return unitRepository.findById(id).orElseThrow(IllegalArgumentException::new);
     }
 
     @Override
@@ -38,11 +42,10 @@ public class UnitService implements ServiceMag<Unit> {
     }
     public List<Unit> getAllSearch(String search) {
         search=search+"%";
-        return em.createQuery("SELECT U FROM Unit U WHERE UPPER(U.name) LIKE UPPER(:paramId)", Unit.class)
-                .setParameter("paramId", search).getResultList();
+        return unitRepository.findByName(search);
     }
     @Synchronized
     public List<Unit> getAllActive(){
-        return em.createQuery("SELECT U FROM Unit U WHERE type = true", Unit.class).getResultList();
+        return unitRepository.findByTypeTrue();
     }
 }

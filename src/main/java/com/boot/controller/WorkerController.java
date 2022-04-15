@@ -16,14 +16,18 @@ import java.util.*;
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
 public class WorkerController {
-    @Autowired
     WorkerService workerService;
-    @Autowired
     PricingWorkerService pricingWorkerService;
-    @Autowired
     SalaryService salaryService;
-    @Autowired
     SalaryWorkerService salaryWorkerService;
+
+    @Autowired
+    public WorkerController(WorkerService workerService, PricingWorkerService pricingWorkerService, SalaryService salaryService, SalaryWorkerService salaryWorkerService) {
+        this.workerService = workerService;
+        this.pricingWorkerService = pricingWorkerService;
+        this.salaryService = salaryService;
+        this.salaryWorkerService = salaryWorkerService;
+    }
 
     @GetMapping("/workersSalary")
     public Set<Salary> getWorkerSalary() {

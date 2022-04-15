@@ -21,16 +21,14 @@ import java.util.stream.Collectors;
 
 @Service
 public class PaymentSupplierService implements ServiceMag<PaymentSupplier> {
-    @Autowired
     PaymentSupplierRepository paymentSupplierRepository;
-    @Autowired
     SuppliersService suppliersService;
-    @PersistenceContext
-    private EntityManager em;
+
     @Autowired
-    private EntityManagerFactory emf;
-    @Autowired
-    SessionFactory factory;
+    public PaymentSupplierService(PaymentSupplierRepository paymentSupplierRepository, SuppliersService suppliersService) {
+        this.paymentSupplierRepository = paymentSupplierRepository;
+        this.suppliersService = suppliersService;
+    }
 
     @Override
     public PaymentSupplier get(long id) {
@@ -48,20 +46,12 @@ public class PaymentSupplierService implements ServiceMag<PaymentSupplier> {
     }
 
     public void update(PaymentSupplier entity) {
-        Session session = factory.openSession();
-        session.beginTransaction();
-        session.update(entity);
-        session.getTransaction().commit();
-        session.close();
+       paymentSupplierRepository.save(entity);
     }
 
     @Override
-    @Transactional
     public void delete(long id) {
-        PaymentSupplier paymentSupplier = em.find(PaymentSupplier.class, id);
-        em.remove(paymentSupplier);
-        em.flush();
-//        paymentSupplierRepository.deleteById(id);
+        paymentSupplierRepository.deleteById(id);
     }
 
     public Set<PaymentSupplier> getAllByDate(Date dateStartPay, Date dateEndPay, Long supplierId){
@@ -74,7 +64,7 @@ public class PaymentSupplierService implements ServiceMag<PaymentSupplier> {
     }
     @Synchronized
     public List<PaymentSupplier> getAllActive(){
-        return em.createQuery("SELECT U FROM PaymentSupplier U WHERE status = true", PaymentSupplier.class).getResultList();
+        return paymentSupplierRepository.findByStatusTrue();
     }
 
 }

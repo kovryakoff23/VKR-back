@@ -19,11 +19,17 @@ import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 @Service
 public class FilesStorageServiceImpl implements FilesStorageService {
-    @Autowired
     DocumentationService documentationService;
-    @Autowired
+
     UnitService unitService;
     private final Path root = Paths.get("uploads");
+
+    @Autowired
+    public FilesStorageServiceImpl(DocumentationService documentationService, UnitService unitService) {
+        this.documentationService = documentationService;
+        this.unitService = unitService;
+    }
+
     @Override
     public void init() {
         try {

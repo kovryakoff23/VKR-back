@@ -13,16 +13,20 @@ import java.util.List;
 
 @Service
 public class UnitDeliveriesService implements ServiceMag<UnitDeliveries>{
-    @Autowired
+
     UnitDeliveriesRepository unitDeliveriesRepository;
-    @Autowired
+
     UnitDeliveriesPositionService unitDeliveriesPositionService;
-    @PersistenceContext
-    private EntityManager em;
+
+    @Autowired
+    public UnitDeliveriesService(UnitDeliveriesRepository unitDeliveriesRepository, UnitDeliveriesPositionService unitDeliveriesPositionService) {
+        this.unitDeliveriesRepository = unitDeliveriesRepository;
+        this.unitDeliveriesPositionService = unitDeliveriesPositionService;
+    }
 
     @Override
     public UnitDeliveries get(long id) {
-        return unitDeliveriesRepository.findById(id).get();
+        return unitDeliveriesRepository.findById(id).orElseThrow(IllegalArgumentException::new);
     }
 
     @Override
@@ -43,11 +47,10 @@ public class UnitDeliveriesService implements ServiceMag<UnitDeliveries>{
 
     @Override
     public void delete(long id) {
-
         unitDeliveriesRepository.deleteById(id);
     }
 
     public List<UnitDeliveries> getAllActive(){
-        return em.createQuery("SELECT U FROM UnitDeliveries U WHERE status = true", UnitDeliveries.class).getResultList();
+        return unitDeliveriesRepository.findByStatusTrue();
     }
 }

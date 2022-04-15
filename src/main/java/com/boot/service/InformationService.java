@@ -19,18 +19,22 @@ import java.util.stream.Stream;
 
 @Service
 public class InformationService {
-    @Autowired
     UnitService unitService;
-    @Autowired
     SuppliersService suppliersService;
-    @Autowired
     WorkerService workerService;
-    @Autowired
     SalaryWorkerService salaryWorkerService;
-    @Autowired
     PaymentSupplierService paymentSupplierService;
 
     private final Path root = Paths.get("Information");
+
+    @Autowired
+    public InformationService(UnitService unitService, SuppliersService suppliersService, WorkerService workerService, SalaryWorkerService salaryWorkerService, PaymentSupplierService paymentSupplierService) {
+        this.unitService = unitService;
+        this.suppliersService = suppliersService;
+        this.workerService = workerService;
+        this.salaryWorkerService = salaryWorkerService;
+        this.paymentSupplierService = paymentSupplierService;
+    }
 
     public Resource load(String filename) {
         try {

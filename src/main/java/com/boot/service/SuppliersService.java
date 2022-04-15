@@ -1,7 +1,6 @@
 package com.boot.service;
 
 import com.boot.entity.Suppliers;
-import com.boot.entity.Unit;
 import com.boot.repository.SuppliersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,33 +11,35 @@ import java.util.List;
 
 @Service
 public class SuppliersService implements ServiceMag<Suppliers>{
-    @PersistenceContext
-    private EntityManager em;
+    SuppliersRepository suppliersRepository;
+
     @Autowired
-    SuppliersRepository suppliers;
+    public SuppliersService(SuppliersRepository suppliersRepository) {
+        this.suppliersRepository = suppliersRepository;
+    }
+
     @Override
     public Suppliers get(long id) {
-        return suppliers.findById(id).get();
+        return suppliersRepository.findById(id).orElseThrow(IllegalArgumentException::new);
     }
 
     @Override
     public List<Suppliers> getAll() {
-        return suppliers.findAll();
+        return suppliersRepository.findAll();
     }
 
     @Override
     public void save(Suppliers entity) {
-        suppliers.save(entity);
+        suppliersRepository.save(entity);
     }
 
     @Override
     public void delete(long id) {
-        suppliers.deleteById(id);
+        suppliersRepository.deleteById(id);
     }
 
     public List<Suppliers> getAllSearch(String search) {
         search=search+"%";
-        return em.createQuery("SELECT S FROM Suppliers S WHERE UPPER(S.name) LIKE UPPER(:paramId)", Suppliers.class)
-                .setParameter("paramId", search).getResultList();
+        return suppliersRepository.findByName(search);
     }
 }
