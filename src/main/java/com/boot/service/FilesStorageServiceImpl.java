@@ -1,14 +1,4 @@
 package com.boot.service;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.boot.entity.Documentation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +7,15 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 @Service
 public class FilesStorageServiceImpl implements FilesStorageService {
     DocumentationService documentationService;
@@ -78,9 +77,8 @@ public class FilesStorageServiceImpl implements FilesStorageService {
     @Override
     public Stream<Path> loadAllById(Long unitId) {
         try {
-            Set<String> fileNames = new HashSet<String>(unitService.get(unitId).getDocumentations().stream()
-                    .map(Documentation::getName)
-                    .collect(Collectors.toSet()));
+            Set<String> fileNames = unitService.get(unitId).getDocumentations().stream()
+                    .map(Documentation::getName).collect(Collectors.toSet());
             return Files.walk(this.root, 1)
                     .filter(path -> !path.equals(this.root))
                     .filter(path -> fileNames.contains(path.getName(1).getFileName().toString()))
