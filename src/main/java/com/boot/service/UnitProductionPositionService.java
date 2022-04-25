@@ -1,51 +1,65 @@
 package com.boot.service;
 
-import com.boot.entity.*;
+import com.boot.DTO.UnitProductionPositionDTO;
+import com.boot.DTO.UnitProductionsDTO;
+import com.boot.DTO.WorkerDTO;
+import com.boot.entity.SalaryWorker;
+import com.boot.entity.UnitProductionPosition;
+import com.boot.mapstruct.SalaryWorkerMapper;
+import com.boot.mapstruct.UnitProductionPositionMapper;
 import com.boot.repository.UnitProductionPositionRepository;
-import com.boot.repository.UnitRepository;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
-public class UnitProductionPositionService  implements ServiceMag<UnitProductionPosition>{
+public class UnitProductionPositionService  implements ServiceMag<UnitProductionPositionDTO>{
 
     UnitProductionPositionRepository unitProductionPositionRepository;
     UnitService unitService;
     SalaryWorkerService salaryWorkerService;
 
+    UnitProductionPositionMapper unitProductionPositionMapper;
+
+    SalaryWorkerMapper salaryWorkerMapper;
+
     @Autowired
-    public UnitProductionPositionService(UnitProductionPositionRepository unitProductionPositionRepository, UnitService unitService, SalaryWorkerService salaryWorkerService) {
+    public UnitProductionPositionService(UnitProductionPositionRepository unitProductionPositionRepository,
+                                         UnitService unitService, SalaryWorkerService salaryWorkerService,
+                                         UnitProductionPositionMapper unitProductionPositionMapper,
+                                         SalaryWorkerMapper salaryWorkerMapper) {
         this.unitProductionPositionRepository = unitProductionPositionRepository;
         this.unitService = unitService;
         this.salaryWorkerService = salaryWorkerService;
+        this.unitProductionPositionMapper = unitProductionPositionMapper;
+        this.salaryWorkerMapper = salaryWorkerMapper;
     }
 
     @Override
-    public UnitProductionPosition get(long id) {
-        return unitProductionPositionRepository.findById(id).orElseThrow(IllegalArgumentException::new);
+    public UnitProductionPositionDTO get(long id) {
+        return unitProductionPositionMapper.toDTO(unitProductionPositionRepository.findById(id).orElseThrow(IllegalArgumentException::new));
     }
 
     @Override
-    public List<UnitProductionPosition> getAll() {
-        return unitProductionPositionRepository.findAll();
+    public List<UnitProductionPositionDTO> getAll() {
+        return unitProductionPositionRepository.findAll()
+                .stream().map(value->unitProductionPositionMapper.toDTO(value))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public void save(UnitProductionPosition entity) {
+    public void save(UnitProductionPositionDTO unitProductionPositionDTO) {
         SalaryWorker salaryWorker;
+        UnitProductionPosition entity = unitProductionPositionMapper.toEntity(unitProductionPositionDTO);
         if (entity.getId()==null) {
             salaryWorker = new SalaryWorker(
-                    entity.getUnitProductionWorks().getDateEndWork(),
+                    entity.getUnitProductions().getDateEndWork(),
                     null,
-                    entity.getUnitProductionWorks().getUnit().getName(),
+                    entity.getUnitProductions().getUnit().getName(),
                     entity.getNamePosition(),
                     false,
                     false,
@@ -55,20 +69,20 @@ public class UnitProductionPositionService  implements ServiceMag<UnitProduction
             entity.setSalaryWorker(salaryWorker);
         }
         else {
-            UnitProductionPosition unitProductionPosition =this.get(entity.getId());
-            salaryWorker = unitProductionPosition.getSalaryWorker();
+            salaryWorker = salaryWorkerMapper.toEntity(this.get(entity.getId()).getSalaryWorkerDTO());
             salaryWorker.setWorker(entity.getWorker());
+            salaryWorker.setUnitProductionPosition(entity);
             entity.setSalaryWorker(salaryWorker);
         }
         unitProductionPositionRepository.save(entity);
     }
 
-    public void update(UnitProductionPosition entity) {
-        SalaryWorker salaryWorker = this.get(entity.getId()).getSalaryWorker();
+    public void update(UnitProductionPositionDTO unitProductionPositionDTO) {
+        UnitProductionPosition entity = unitProductionPositionMapper.toEntity(unitProductionPositionDTO);
+        SalaryWorker salaryWorker = salaryWorkerMapper.toEntity(this.get(entity.getId()).getSalaryWorkerDTO());
         salaryWorker.setStatus(!entity.isStatus());
+        salaryWorker.setUnitProductionPosition(entity);
         entity.setSalaryWorker(salaryWorker);
-
-        salaryWorkerService.save(salaryWorker);
         unitProductionPositionRepository.save(entity);
     }
     @Override
@@ -76,12 +90,12 @@ public class UnitProductionPositionService  implements ServiceMag<UnitProduction
         unitProductionPositionRepository.deleteById(id);
     }
 
-    public Set<Worker> getWorker(Long unitId){
-        Set<Worker> workers = new HashSet<>();
-        List<UnitProductions> unitProductionWorks = unitService.get(unitId).getUnitProductionWorks();
-        for (UnitProductions unitProductionWork: unitProductionWorks){
-          for(UnitProductionPosition item:  unitProductionWork.getUnitProductionPositions()) {
-                workers.add(item.getWorker());
+    public Set<WorkerDTO> getWorker(Long unitId){
+        Set<WorkerDTO> workers = new HashSet<>();
+        Set<UnitProductionsDTO> unitProductionWorks = unitService.get(unitId).getUnitProductionsDTO();
+        for (UnitProductionsDTO unitProductionWork: unitProductionWorks){
+          for(UnitProductionPositionDTO item:  unitProductionWork.getUnitProductionPositionsDTO()) {
+                workers.add(item.getWorkerDTO());
           }
         }
         return workers;

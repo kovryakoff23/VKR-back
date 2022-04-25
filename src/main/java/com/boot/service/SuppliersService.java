@@ -1,36 +1,42 @@
 package com.boot.service;
 
-import com.boot.entity.Suppliers;
+import com.boot.DTO.SuppliersDTO;
+import com.boot.mapstruct.SuppliersMapper;
 import com.boot.repository.SuppliersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
-public class SuppliersService implements ServiceMag<Suppliers>{
+public class SuppliersService implements ServiceMag<SuppliersDTO>{
     SuppliersRepository suppliersRepository;
+    SuppliersMapper suppliersMapper;
 
     @Autowired
-    public SuppliersService(SuppliersRepository suppliersRepository) {
+    public SuppliersService(SuppliersRepository suppliersRepository,
+                            SuppliersMapper suppliersMapper) {
         this.suppliersRepository = suppliersRepository;
+        this.suppliersMapper = suppliersMapper;
     }
 
     @Override
-    public Suppliers get(long id) {
-        return suppliersRepository.findById(id).orElseThrow(IllegalArgumentException::new);
+    public SuppliersDTO get(long id) {
+        return suppliersMapper.toDTO(suppliersRepository.findById(id).orElseThrow(IllegalArgumentException::new));
     }
 
     @Override
-    public List<Suppliers> getAll() {
-        return suppliersRepository.findAll();
+    public List<SuppliersDTO> getAll() {
+
+        return suppliersRepository.findAll().stream()
+                .map(value->suppliersMapper.toDTO(value))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public void save(Suppliers entity) {
-        suppliersRepository.save(entity);
+    public void save(SuppliersDTO entity) {
+        suppliersRepository.save(suppliersMapper.toEntity(entity));
     }
 
     @Override
@@ -38,8 +44,10 @@ public class SuppliersService implements ServiceMag<Suppliers>{
         suppliersRepository.deleteById(id);
     }
 
-    public List<Suppliers> getAllSearch(String search) {
+    public List<SuppliersDTO> getAllSearch(String search) {
         search=search+"%";
-        return suppliersRepository.findByName(search);
+        return (suppliersRepository.findByName(search)).stream()
+                .map(value->suppliersMapper.toDTO(value))
+                .collect(Collectors.toList());
     }
 }

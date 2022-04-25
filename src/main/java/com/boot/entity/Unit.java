@@ -1,16 +1,15 @@
 package com.boot.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.*;
 
 @Entity
 @Table(name = "Unit")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Unit {
@@ -28,7 +27,7 @@ public class Unit {
     private  boolean type;
     @JsonIgnore
     @OneToMany (mappedBy="unit", orphanRemoval = true)
-    private List<UnitProductions> unitProductionWorks = new ArrayList<>();
+    private Set<UnitProductions> unitProductions = new HashSet<>();
     @JsonIgnore
     @OneToMany (mappedBy="unit", fetch=FetchType.EAGER, orphanRemoval = true)
     private Set<UnitDeliveries> unitDeliveries = new HashSet<>();

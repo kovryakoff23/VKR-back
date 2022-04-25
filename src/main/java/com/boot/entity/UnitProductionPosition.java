@@ -1,9 +1,7 @@
 package com.boot.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -11,7 +9,8 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "unit_production_position")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class UnitProductionPosition {
@@ -26,7 +25,7 @@ public class UnitProductionPosition {
     String measure;
     boolean status;
     @ManyToOne(optional=true, cascade=CascadeType.DETACH, fetch=FetchType.EAGER)
-    private UnitProductions unitProductionWorks;
+    private UnitProductions unitProductions;
     @ManyToOne(optional=true, cascade=CascadeType.DETACH, fetch=FetchType.EAGER)
     @JoinColumn (name="worker_id")
     Worker worker;

@@ -1,14 +1,13 @@
 package com.boot.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "UnitUpkeep")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class UnitUpkeep {
@@ -22,5 +21,4 @@ public class UnitUpkeep {
     @ManyToOne(optional=true, cascade=CascadeType.DETACH, fetch=FetchType.EAGER)
     @JoinColumn (name="unit_id")
     private Unit unit;
-
 }

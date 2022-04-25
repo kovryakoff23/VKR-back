@@ -1,19 +1,23 @@
 package com.boot.service;
 
-import com.boot.entity.Documentation;
-import com.boot.entity.PricingWorker;
+import com.boot.DTO.DocumentationDTO;
+import com.boot.mapstruct.DocumentationMapper;
 import com.boot.repository.DocumentationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
-public class DocumentationService implements ServiceMag<Documentation> {
+public class DocumentationService implements ServiceMag<DocumentationDTO> {
     DocumentationRepository documentationRepository;
+    DocumentationMapper documentationMapper;
 
     @Autowired
-    public DocumentationRepository getDocumentationRepository() {
-        return documentationRepository;
+    public DocumentationService(DocumentationRepository documentationRepository, DocumentationMapper documentationMapper) {
+        this.documentationRepository = documentationRepository;
+        this.documentationMapper = documentationMapper;
     }
 
     public void setDocumentationRepository(DocumentationRepository documentationRepository) {
@@ -21,18 +25,22 @@ public class DocumentationService implements ServiceMag<Documentation> {
     }
 
     @Override
-    public Documentation get(long id) {
-        return documentationRepository.findById(id).get();
+    public DocumentationDTO get(long id) {
+
+        return documentationMapper.documentationToDocumentationDto(
+                documentationRepository.findById(id).orElseThrow(IllegalArgumentException::new));
     }
 
     @Override
-    public List<Documentation> getAll() {
-        return documentationRepository.findAll();
+    public List<DocumentationDTO> getAll() {
+        return documentationRepository.findAll().stream()
+                .map(value-> documentationMapper.documentationToDocumentationDto(value))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public void save(Documentation entity) {
-        documentationRepository.save(entity);
+    public void save(DocumentationDTO entity) {
+        documentationRepository.save(documentationMapper.documentationDtoToDocumentation(entity));
     }
 
     @Override

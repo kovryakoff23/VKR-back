@@ -1,34 +1,42 @@
 package com.boot.service;
 
-import com.boot.entity.SupplierPositions;
+import com.boot.DTO.SupplierPositionsDTO;
+import com.boot.mapstruct.SupplierPositionsMapper;
 import com.boot.repository.SuppliersPositionsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
-public class SupplierPositionsService implements ServiceMag<SupplierPositions>{
+public class SupplierPositionsService implements ServiceMag<SupplierPositionsDTO>{
     SuppliersPositionsRepository supplierPositionsRepository;
 
+    SupplierPositionsMapper supplierPositionsMapper;
+
     @Autowired
-    public SupplierPositionsService(SuppliersPositionsRepository supplierPositionsRepository) {
+    public SupplierPositionsService(SuppliersPositionsRepository supplierPositionsRepository,
+                                    SupplierPositionsMapper supplierPositionsMapper) {
         this.supplierPositionsRepository = supplierPositionsRepository;
+        this.supplierPositionsMapper = supplierPositionsMapper;
     }
 
     @Override
-    public SupplierPositions get(long id) {
-        return supplierPositionsRepository.findById(id).orElseThrow(IllegalArgumentException::new);
+    public SupplierPositionsDTO get(long id) {
+        return supplierPositionsMapper.toDTO(supplierPositionsRepository.findById(id).orElseThrow(IllegalArgumentException::new));
     }
 
     @Override
-    public List<SupplierPositions> getAll() {
-        return supplierPositionsRepository.findAll();
+    public List<SupplierPositionsDTO> getAll() {
+        return supplierPositionsRepository.findAll().stream()
+                .map(value->supplierPositionsMapper.toDTO(value))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public void save(SupplierPositions entity) {
-        supplierPositionsRepository.save(entity);
+    public void save(SupplierPositionsDTO entity) {
+        supplierPositionsRepository.save(supplierPositionsMapper.toEntity(entity));
     }
 
     @Override

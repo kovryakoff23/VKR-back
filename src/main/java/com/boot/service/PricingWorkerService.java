@@ -1,36 +1,41 @@
 package com.boot.service;
 
-import com.boot.entity.PricingWorker;
-import com.boot.entity.Worker;
+import com.boot.DTO.PricingWorkerDTO;
+import com.boot.mapstruct.PricingWorkerMapper;
 import com.boot.repository.PricingWorkerRepository;
-import com.boot.repository.WorkerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
-public class PricingWorkerService implements ServiceMag<PricingWorker> {
+public class PricingWorkerService implements ServiceMag<PricingWorkerDTO> {
     PricingWorkerRepository pricingWorkerRepository;
+    PricingWorkerMapper pricingWorkerMapper;
 
     @Autowired
-    public PricingWorkerService(PricingWorkerRepository pricingWorkerRepository) {
+    public PricingWorkerService(PricingWorkerRepository pricingWorkerRepository,
+                                PricingWorkerMapper pricingWorkerMapper) {
         this.pricingWorkerRepository = pricingWorkerRepository;
+        this.pricingWorkerMapper = pricingWorkerMapper;
     }
 
     @Override
-    public PricingWorker get(long id) {
-        return pricingWorkerRepository.findById(id).orElseThrow(IllegalArgumentException::new);
+    public PricingWorkerDTO get(long id) {
+        return pricingWorkerMapper.toDTO(pricingWorkerRepository.findById(id).orElseThrow(IllegalArgumentException::new));
     }
 
     @Override
-    public List<PricingWorker> getAll() {
-        return pricingWorkerRepository.findAll();
+    public List<PricingWorkerDTO> getAll() {
+        return pricingWorkerRepository.findAll().stream()
+                .map(value->pricingWorkerMapper.toDTO(value))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public void save(PricingWorker entity) {
-        pricingWorkerRepository.save(entity);
+    public void save(PricingWorkerDTO entity) {
+        pricingWorkerRepository.save(pricingWorkerMapper.toEntity(entity));
     }
 
     @Override

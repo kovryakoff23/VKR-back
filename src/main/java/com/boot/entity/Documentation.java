@@ -6,7 +6,8 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "Documentation")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Documentation {

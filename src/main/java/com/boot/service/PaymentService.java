@@ -1,9 +1,8 @@
 package com.boot.service;
 
+import com.boot.DTO.PaymentSupplierDTO;
 import com.boot.component.Payment;
-import com.boot.component.Salary;
-import com.boot.entity.PaymentSupplier;
-import com.boot.entity.SalaryWorker;
+import com.boot.mapstruct.SuppliersMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,21 +15,23 @@ public class PaymentService {
     PaymentSupplierService paymentSupplierService;
     SuppliersService suppliersService;
 
+    SuppliersMapper suppliersMapper;
     @Autowired
-    public PaymentService(PaymentSupplierService paymentSupplierService, SuppliersService suppliersService) {
+    public PaymentService(PaymentSupplierService paymentSupplierService, SuppliersService suppliersService, SuppliersMapper suppliersMapper) {
         this.paymentSupplierService = paymentSupplierService;
         this.suppliersService = suppliersService;
+        this.suppliersMapper=suppliersMapper;
     }
 
     public Set<Payment> getAll(){
         Set<Payment> payments = suppliersService.getAll().stream()
                 .map(value->{
-                    return new Payment(value,
+                    return new Payment(suppliersMapper.toEntity(value),
                             value
-                                    .getPaymentSuppliers()
+                                    .getPaymentSuppliersDTO()
                                     .stream()
-                                    .filter(PaymentSupplier::isStatus)
-                                    .map(PaymentSupplier::getSumPay)
+                                    .filter(PaymentSupplierDTO::isStatus)
+                                    .map(PaymentSupplierDTO::getSumPay)
                                     .mapToLong(Long::longValue)
                                     .sum());
                 })
@@ -41,16 +42,16 @@ public class PaymentService {
     public Set<Payment> getAllByDate(Date dateStartPay, Date dateEndPay){
         Set<Payment> payments = suppliersService.getAll().stream()
                 .map(value->{
-                    return new Payment(value,
+                    return new Payment(suppliersMapper.toEntity(value),
 
                             value
-                                    .getPaymentSuppliers()
+                                    .getPaymentSuppliersDTO()
                                     .stream()
-                                    .filter(PaymentSupplier::isStatus)
+                                    .filter(PaymentSupplierDTO::isStatus)
                                     .filter(value1->value1.getDatePay().after(dateStartPay))
                                     .filter(value1->value1.getDatePay().before(dateEndPay))
-                                    .filter(PaymentSupplier::isStatus)
-                                    .map(PaymentSupplier::getSumPay)
+                                    .filter(PaymentSupplierDTO::isStatus)
+                                    .map(PaymentSupplierDTO::getSumPay)
                                     .mapToLong(Long::longValue)
                                     .sum());
                 })

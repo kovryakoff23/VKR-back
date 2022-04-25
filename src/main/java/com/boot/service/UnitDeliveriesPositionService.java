@@ -1,40 +1,52 @@
 package com.boot.service;
 
-import com.boot.entity.*;
+import com.boot.DTO.UnitDeliveriesPositionDTO;
+import com.boot.entity.PaymentSupplier;
+import com.boot.entity.UnitDeliveriesPosition;
+import com.boot.mapstruct.PaymentSupplierMapper;
+import com.boot.mapstruct.UnitDeliveriesPositionMapper;
 import com.boot.repository.UnitDeliveriesPositionRepository;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
-public class UnitDeliveriesPositionService implements ServiceMag<UnitDeliveriesPosition>{
+public class UnitDeliveriesPositionService implements ServiceMag<UnitDeliveriesPositionDTO>{
 
     UnitDeliveriesPositionRepository unitDeliveriesPositionRepository;
+    UnitDeliveriesPositionMapper unitDeliveriesPositionMapper;
 
+    PaymentSupplierMapper paymentSupplierMapper;
     @Autowired
-    public UnitDeliveriesPositionService(UnitDeliveriesPositionRepository unitDeliveriesPositionRepository) {
+    public UnitDeliveriesPositionService(UnitDeliveriesPositionRepository unitDeliveriesPositionRepository,
+                                         UnitDeliveriesPositionMapper unitDeliveriesPositionMapper,
+                                         PaymentSupplierMapper paymentSupplierMapper) {
         this.unitDeliveriesPositionRepository = unitDeliveriesPositionRepository;
+        this.unitDeliveriesPositionMapper = unitDeliveriesPositionMapper;
+        this.paymentSupplierMapper=paymentSupplierMapper;
     }
 
     @Override
-    public UnitDeliveriesPosition get(long id) {
-        return unitDeliveriesPositionRepository.findById(id).orElseThrow(IllegalArgumentException::new);
+    public UnitDeliveriesPositionDTO get(long id) {
+        return unitDeliveriesPositionMapper.toDTO(
+                unitDeliveriesPositionRepository.findById(id).orElseThrow(IllegalArgumentException::new));
     }
 
     @Override
-    public List<UnitDeliveriesPosition> getAll() {
-        return unitDeliveriesPositionRepository.findAll();
+    public List<UnitDeliveriesPositionDTO> getAll() {
+
+        return unitDeliveriesPositionRepository.findAll().stream()
+                .map(value->unitDeliveriesPositionMapper.toDTO(value))
+                .collect(Collectors.toList());
     }
 
 
     @Override
-    public void save(UnitDeliveriesPosition entity) {
+    public void save(UnitDeliveriesPositionDTO unitDeliveriesPositionDTO) {
        PaymentSupplier paymentSupplier;
+       UnitDeliveriesPosition entity = unitDeliveriesPositionMapper.toEntity(unitDeliveriesPositionDTO);
         if (entity.getId()==null) {
             paymentSupplier = new PaymentSupplier(
                     entity.getUnitDeliveries().getDateComplete(),
@@ -47,17 +59,19 @@ public class UnitDeliveriesPositionService implements ServiceMag<UnitDeliveriesP
             entity.setPaymentSupplier(paymentSupplier);
         }
         else {
-            UnitDeliveriesPosition unitProductionPosition =this.get(entity.getId());
-            paymentSupplier = unitProductionPosition.getPaymentSupplier();
+            paymentSupplier = paymentSupplierMapper.toEntity(this.get(entity.getId()).getPaymentSupplierDTO());
+            paymentSupplier.setUnitDeliveriesPosition(entity);
             paymentSupplier.setSuppliers(entity.getSuppliers());
             entity.setPaymentSupplier(paymentSupplier);
         }
         unitDeliveriesPositionRepository.save(entity);
     }
 
-    public void update(UnitDeliveriesPosition entity) {
-        PaymentSupplier paymentSupplier = this.get(entity.getId()).getPaymentSupplier();
+    public void update(UnitDeliveriesPositionDTO unitDeliveriesPositionDTO) {
+        UnitDeliveriesPosition entity = unitDeliveriesPositionMapper.toEntity(unitDeliveriesPositionDTO);
+        PaymentSupplier paymentSupplier = paymentSupplierMapper.toEntity(this.get(entity.getId()).getPaymentSupplierDTO());
         paymentSupplier.setStatus(!entity.isStatus());
+        paymentSupplier.setUnitDeliveriesPosition(entity);
         entity.setPaymentSupplier(paymentSupplier);
         unitDeliveriesPositionRepository.save(entity);
     }

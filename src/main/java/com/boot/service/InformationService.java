@@ -1,9 +1,8 @@
 package com.boot.service;
 
+import com.boot.DTO.PaymentSupplierDTO;
+import com.boot.DTO.SalaryWorkerDTO;
 import com.boot.component.InfoReports;
-import com.boot.entity.PaymentSupplier;
-import com.boot.entity.SalaryWorker;
-import com.boot.entity.Worker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -63,15 +62,15 @@ public class InformationService {
     public InfoReports loadReports(){
         InfoReports infoReports;
         Long sumSalary = salaryWorkerService.getAll().stream()
-                .filter(SalaryWorker::isStatus)
+                .filter(SalaryWorkerDTO::isStatus)
                 .filter(value->!value.isStatusExecution())
-                .map(SalaryWorker::getSumSalary)
+                .map(SalaryWorkerDTO::getSumSalary)
                 .mapToLong(Long::longValue)
                 .sum();
         Long sumPayment = paymentSupplierService.getAll().stream()
-                .filter(PaymentSupplier::isStatus)
+                .filter(PaymentSupplierDTO::isStatus)
                 .filter(value->!value.isStatusExecution())
-                .map(PaymentSupplier::getSumPay)
+                .map(PaymentSupplierDTO::getSumPay)
                 .mapToLong(Long::longValue)
                 .sum();;
         Long countUnit = (long) unitService.getAllActive().size();

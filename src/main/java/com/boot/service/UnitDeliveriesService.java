@@ -1,43 +1,49 @@
 package com.boot.service;
 
+import com.boot.DTO.UnitDeliveriesDTO;
 import com.boot.entity.UnitDeliveries;
-import com.boot.entity.UnitDeliveriesPosition;
-import com.boot.entity.UnitProductions;
+import com.boot.mapstruct.UnitDeliveriesMapper;
 import com.boot.repository.UnitDeliveriesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
-public class UnitDeliveriesService implements ServiceMag<UnitDeliveries>{
+public class UnitDeliveriesService implements ServiceMag<UnitDeliveriesDTO>{
 
     UnitDeliveriesRepository unitDeliveriesRepository;
 
     UnitDeliveriesPositionService unitDeliveriesPositionService;
 
+    UnitDeliveriesMapper unitDeliveriesMapper;
+
     @Autowired
-    public UnitDeliveriesService(UnitDeliveriesRepository unitDeliveriesRepository, UnitDeliveriesPositionService unitDeliveriesPositionService) {
+    public UnitDeliveriesService(UnitDeliveriesRepository unitDeliveriesRepository,
+                                 UnitDeliveriesPositionService unitDeliveriesPositionService, UnitDeliveriesMapper unitDeliveriesMapper) {
         this.unitDeliveriesRepository = unitDeliveriesRepository;
         this.unitDeliveriesPositionService = unitDeliveriesPositionService;
+        this.unitDeliveriesMapper = unitDeliveriesMapper;
     }
 
     @Override
-    public UnitDeliveries get(long id) {
-        return unitDeliveriesRepository.findById(id).orElseThrow(IllegalArgumentException::new);
+    public UnitDeliveriesDTO get(long id) {
+        return unitDeliveriesMapper.toDTO(unitDeliveriesRepository.findById(id).orElseThrow(IllegalArgumentException::new));
     }
 
     @Override
-    public List<UnitDeliveries> getAll() {
-        return unitDeliveriesRepository.findAll();
+    public List<UnitDeliveriesDTO> getAll() {
+        return unitDeliveriesRepository.findAll().stream()
+                .map(value->unitDeliveriesMapper.toDTO(value))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public void save(UnitDeliveries entity) {
+    public void save(UnitDeliveriesDTO unitDeliveriesDTO) {
+        UnitDeliveries entity = unitDeliveriesMapper.toEntity(unitDeliveriesDTO);
         if(entity.getId()!=null && !entity.isStatus()){
-            this.get(entity.getId()).getUnitDeliveriesPositions().forEach(value->{
+            this.get(entity.getId()).getUnitDeliveriesPositionsDTO().forEach(value->{
                 value.setStatus(false);
                 unitDeliveriesPositionService.save(value);
             });
@@ -50,7 +56,9 @@ public class UnitDeliveriesService implements ServiceMag<UnitDeliveries>{
         unitDeliveriesRepository.deleteById(id);
     }
 
-    public List<UnitDeliveries> getAllActive(){
-        return unitDeliveriesRepository.findByStatusTrue();
+    public List<UnitDeliveriesDTO> getAllActive(){
+        return unitDeliveriesRepository.findByStatusTrue().stream()
+                .map(value->unitDeliveriesMapper.toDTO(value))
+                .collect(Collectors.toList());
     }
 }

@@ -1,17 +1,20 @@
 package com.boot.controller;
 
+import com.boot.DTO.PricingWorkerDTO;
+import com.boot.DTO.SalaryWorkerDTO;
+import com.boot.DTO.WorkerDTO;
 import com.boot.component.Salary;
-import com.boot.entity.*;
-import com.boot.service.*;
+import com.boot.service.PricingWorkerService;
+import com.boot.service.SalaryService;
+import com.boot.service.SalaryWorkerService;
+import com.boot.service.WorkerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
@@ -33,30 +36,28 @@ public class WorkerController {
     public Set<Salary> getWorkerSalary() {
         return  salaryService.getAll();
     }
-    @RequestMapping(value="/workersSalar/" , method=RequestMethod.GET)
+    @RequestMapping(value="/workersSalary/" , method=RequestMethod.GET)
     @ResponseBody
     public Set<Salary> getWorkerSalaryByDate(@RequestParam("dateStartSalary") @DateTimeFormat(pattern="yyyy-MM-dd") Date dateStartSalary,
                                              @RequestParam("dateEndSalary") @DateTimeFormat(pattern="yyyy-MM-dd") Date dateEndSalary) {
         return salaryService.getAllByDate(dateStartSalary,dateEndSalary);
     }
     @GetMapping("/workers")
-    public List<Worker> getWorker() {
+    public List<WorkerDTO> getWorker() {
         return  workerService.getAll();
     }
     @GetMapping("/workers/search/{search}")
-    public List<Worker> Worker(@PathVariable("search") String search) {
-        List<Worker> workersListSearch =  new ArrayList<>();
-        workersListSearch = workerService.getAllSearch(search);
-        return  workersListSearch;
+    public List<WorkerDTO> Worker(@PathVariable("search") String search) {
+        return  workerService.getAllSearch(search);
 
     }
     @GetMapping("/workers/{workerId}")
-    public Worker getWorker(@PathVariable("workerId") Long workerId) {
+    public WorkerDTO getWorker(@PathVariable("workerId") Long workerId) {
         return workerService.get(workerId);
     }
 
     @PostMapping("/workers")
-    public void saveWorker(@RequestBody Worker worker) {
+    public void saveWorker(@RequestBody WorkerDTO worker) {
         try {
             workerService.save(worker);
         }catch(Exception e){
@@ -73,15 +74,15 @@ public class WorkerController {
     }
 
     @GetMapping("/workerDetails/{pricingWorkerId}")
-    public Set<PricingWorker> getPricingWorker(@PathVariable("pricingWorkerId") Long pricingWorkerId) {
-        return workerService.get(pricingWorkerId).getPricingWorkers();
+    public Set<PricingWorkerDTO> getPricingWorker(@PathVariable("pricingWorkerId") Long pricingWorkerId) {
+        return workerService.get(pricingWorkerId).getPricingWorkersDTO();
     }
     @GetMapping("/workerDetails/byId/{pricingWorkerId}")
-    public PricingWorker getPricingWorkerById(@PathVariable("pricingWorkerId") Long pricingWorkerId) {
+    public PricingWorkerDTO getPricingWorkerById(@PathVariable("pricingWorkerId") Long pricingWorkerId) {
         return pricingWorkerService.get(pricingWorkerId);
     }
     @PostMapping("/workerDetails")
-    public void savePricingWorker(@RequestBody PricingWorker pricingWorker) {
+    public void savePricingWorker(@RequestBody PricingWorkerDTO pricingWorker) {
         try {
             pricingWorkerService.save(pricingWorker);
         }catch(Exception e){
@@ -93,11 +94,15 @@ public class WorkerController {
             pricingWorkerService.delete(workerDetailsId);
     }
     @GetMapping("/worker/salary/{workerId}")
-    public Set<SalaryWorker> getSalaryWorker(@PathVariable("workerId") Long workerId) {
-        return workerService.get(workerId).getSalaryWorkers();
+    public Set<SalaryWorkerDTO> getSalaryWorker(@PathVariable("workerId") Long workerId) {
+        return workerService.get(workerId).getSalaryWorkersDTO();
+    }
+    @GetMapping("/worker/salary")
+    public List<SalaryWorkerDTO> getSalaryWorkerHistory() {
+        return salaryWorkerService.getAll();
     }
     @PostMapping("/worker/salary/")
-    public void saveSalaryWorker(@RequestBody SalaryWorker salaryWorker) {
+    public void saveSalaryWorker(@RequestBody SalaryWorkerDTO salaryWorker) {
         try {
             salaryWorkerService.save(salaryWorker);
         }catch(Exception e){
@@ -105,7 +110,7 @@ public class WorkerController {
         }
     }
     @PutMapping("/worker/salary/")
-    public void updateSalaryWorker(@RequestBody SalaryWorker salaryWorker) {
+    public void updateSalaryWorker(@RequestBody SalaryWorkerDTO salaryWorker) {
         try {
             salaryWorkerService.update(salaryWorker);
         }catch(Exception e){
@@ -122,7 +127,7 @@ public class WorkerController {
     }
     @RequestMapping(value="/worker/salary/" , method=RequestMethod.GET)
     @ResponseBody
-    public Set<SalaryWorker> getSalaryWorkerByDate(@RequestParam("dateStartSalary") @DateTimeFormat(pattern="yyyy-MM-dd") Date dateStartSalary,
+    public Set<SalaryWorkerDTO> getSalaryWorkerByDate(@RequestParam("dateStartSalary") @DateTimeFormat(pattern="yyyy-MM-dd") Date dateStartSalary,
                                              @RequestParam("dateEndSalary") @DateTimeFormat(pattern="yyyy-MM-dd") Date dateEndSalary,
                                              @RequestParam("workerId") Long workerId) {
         return salaryWorkerService.getAllByDate(dateStartSalary,dateEndSalary, workerId);

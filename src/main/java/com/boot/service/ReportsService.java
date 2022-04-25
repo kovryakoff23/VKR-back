@@ -1,7 +1,11 @@
 package com.boot.service;
 
+import com.boot.DTO.*;
 import com.boot.component.Reports;
 import com.boot.entity.*;
+import com.boot.mapstruct.UnitDeliveriesMapper;
+import com.boot.mapstruct.UnitMapper;
+import com.boot.mapstruct.UnitProductionsMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,21 +14,30 @@ public class ReportsService {
 
     UnitService unitService;
 
+    UnitMapper unitMapper;
+
+    UnitDeliveriesMapper unitDeliveriesMapper;
+
+    UnitProductionsMapper unitProductionsMapper;
     @Autowired
-    public ReportsService(UnitService unitService) {
+    public ReportsService(UnitService unitService, UnitMapper unitMapper, UnitDeliveriesMapper unitDeliveriesMapper, UnitProductionsMapper unitProductionsMapper) {
         this.unitService = unitService;
+        this.unitMapper = unitMapper;
+        this.unitDeliveriesMapper = unitDeliveriesMapper;
+        this.unitProductionsMapper = unitProductionsMapper;
     }
 
     public Reports getReport(Long unitId){
-        Unit unit = unitService.get(unitId);
-        Long sumSalaries = unit.getUnitProductionWorks().stream()
-                .map(UnitProductions::getUnitProductionPositions)
-                .map(var->(var.stream().map(UnitProductionPosition::getPrice).mapToLong(Long::longValue).sum()))
+        UnitDTO unitDTO = unitService.get(unitId);
+        Unit unit = unitMapper.unitDTOToUnit(unitDTO);
+        Long sumSalaries = unitDTO.getUnitProductionsDTO().stream()
+                .map(UnitProductionsDTO::getUnitProductionPositionsDTO)
+                .map(var->(var.stream().map(UnitProductionPositionDTO::getPrice).mapToLong(Long::longValue).sum()))
                 .mapToLong(Long::longValue)
                 .sum();
-        Long sumSupply = unit.getUnitDeliveries().stream()
-                .map(UnitDeliveries::getUnitDeliveriesPositions)
-                .map(var->(var.stream().map(UnitDeliveriesPosition::getPrice).mapToLong(Long::longValue).sum()))
+        Long sumSupply = unitDTO.getUnitDeliveriesDTO().stream()
+                .map(UnitDeliveriesDTO::getUnitDeliveriesPositionsDTO)
+                .map(var->(var.stream().map(UnitDeliveriesPositionDTO::getPrice).mapToLong(Long::longValue).sum()))
                 .mapToLong(Long::longValue)
                 .sum();
         Long sumUpkeep = unit.getUnitUpkeeps().stream()
@@ -35,19 +48,19 @@ public class ReportsService {
                 .map(UnitEquipmentRental::getPrice)
                 .mapToLong(Long::longValue)
                 .sum();
-        Long quantityWork = unit.getUnitProductionWorks().stream()
-                .map(UnitProductions::getUnitProductionPositions)
+        Long quantityWork = unitDTO.getUnitProductionsDTO().stream()
+                .map(UnitProductionsDTO::getUnitProductionPositionsDTO)
                 .count();
-        Long quantitySuccessfulWork = unit.getUnitProductionWorks().stream()
-                .filter(UnitProductions::isStatus)
-                .map(UnitProductions::getUnitProductionPositions)
+        Long quantitySuccessfulWork = unitDTO.getUnitProductionsDTO().stream()
+                .filter(UnitProductionsDTO::isStatus)
+                .map(UnitProductionsDTO::getUnitProductionPositionsDTO)
                 .count();
-        Long quantitySupplierPositions = unit.getUnitDeliveries().stream()
-                .map(UnitDeliveries::getUnitDeliveriesPositions)
+        Long quantitySupplierPositions = unitDTO.getUnitDeliveriesDTO().stream()
+                .map(UnitDeliveriesDTO::getUnitDeliveriesPositionsDTO)
                 .count();
-        Long quantitySuccessfulSupplierPositions = unit.getUnitDeliveries().stream()
-                .filter(UnitDeliveries::isStatus)
-                .map(UnitDeliveries::getUnitDeliveriesPositions)
+        Long quantitySuccessfulSupplierPositions = unitDTO.getUnitDeliveriesDTO().stream()
+                .filter(UnitDeliveriesDTO::isStatus)
+                .map(UnitDeliveriesDTO::getUnitDeliveriesPositionsDTO)
                 .count();
         int workReadiness =(int)((quantitySuccessfulWork.doubleValue()/quantityWork.doubleValue())*100);
         int supplyReadiness = (int)((quantitySuccessfulSupplierPositions.doubleValue()/quantitySupplierPositions.doubleValue())*100);

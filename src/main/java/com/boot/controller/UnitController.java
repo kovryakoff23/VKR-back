@@ -1,12 +1,11 @@
 package com.boot.controller;
 
+import com.boot.DTO.*;
 import com.boot.component.Reports;
-import com.boot.entity.*;
 import com.boot.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -37,20 +36,17 @@ public class UnitController {
     }
 
     @GetMapping("/units")
-    public List<Unit> getUnit() {
-        List<Unit> unitList =  unitService.getAll();
-        return  (List<Unit>) unitService.getAll();
+    public List<UnitDTO> getUnit() {
+        return  unitService.getAll();
 
     }
     @GetMapping("/units/search/{search}")
-    public List<Unit> getUnit(@PathVariable("search") String search) {
-        List<Unit> unitListSearch =  new ArrayList<>();
-        unitListSearch = unitService.getAllSearch(search);
-        return  unitListSearch;
+    public List<UnitDTO> getUnit(@PathVariable("search") String search) {
+        return unitService.getAllSearch(search);
 
     }
     @PostMapping("/units")
-    public void saveUnit(@RequestBody Unit unit) {
+    public void saveUnit(@RequestBody UnitDTO unit) {
         try {
            unitService.save(unit);
        }catch(Exception e){
@@ -66,17 +62,21 @@ public class UnitController {
         }
     }
     @GetMapping("/units/{unitId}")
-    public Unit getProductionUnit(@PathVariable("unitId") Long unitId) {
+    public UnitDTO getProductionUnit(@PathVariable("unitId") Long unitId) {
         return unitService.get(unitId);
     }
 
 
     @GetMapping("units/deliveries/{unitId}")
-    public Set<UnitDeliveries> getDeliveries(@PathVariable("unitId") Long unitId) {
-        return unitService.get(unitId).getUnitDeliveries();
+    public Set<UnitDeliveriesDTO> getDeliveries(@PathVariable("unitId") Long unitId) {
+        UnitDTO unitDTO = unitService.get(unitId);
+        unitDTO.getUnitDeliveriesDTO().forEach(value->{
+            value.setUnitDTO(unitDTO);
+        });
+        return unitDTO.getUnitDeliveriesDTO();
     }
     @PostMapping("/units/deliveries")
-    public void saveDeliveries(@RequestBody UnitDeliveries unitDeliveries) {
+    public void saveDeliveries(@RequestBody UnitDeliveriesDTO unitDeliveries) {
         try {
             unitDeliveriesService.save(unitDeliveries);
         }catch(Exception e){
@@ -84,7 +84,7 @@ public class UnitController {
         }
     }
     @PutMapping("/units/deliveries")
-    public void updateDeliveries(@RequestBody UnitDeliveries unitDeliveries) {
+    public void updateDeliveries(@RequestBody UnitDeliveriesDTO unitDeliveries) {
         try {
             unitDeliveriesService.save(unitDeliveries);
         }catch(Exception e){
@@ -92,13 +92,13 @@ public class UnitController {
         }
     }
     @GetMapping("units/deliver/{deliverId}")
-    public Set<UnitDeliveriesPosition> getDeliveriesPositions(@PathVariable("deliverId") Long deliverId) {
-        Set<UnitDeliveriesPosition> unitDeliveriesPositions = unitDeliveriesService.get(deliverId).getUnitDeliveriesPositions();
-        return unitDeliveriesPositions;
+    public Set<UnitDeliveriesPositionDTO> getDeliveriesPositions(@PathVariable("deliverId") Long deliverId) {
+
+        return unitDeliveriesService.get(deliverId).getUnitDeliveriesPositionsDTO();
     }
 
     @PostMapping("/units/deliver")
-    public void setDeliveriesPositions(@RequestBody UnitDeliveriesPosition unitDeliveriesPosition) {
+    public void setDeliveriesPositions(@RequestBody UnitDeliveriesPositionDTO unitDeliveriesPosition) {
         try {
             unitDeliveriesPositionService.save(unitDeliveriesPosition);
         }catch(Exception e){
@@ -106,7 +106,7 @@ public class UnitController {
         }
     }
     @PutMapping ("/units/deliver")
-    public void updateDeliveriesPositions(@RequestBody UnitDeliveriesPosition unitDeliveriesPosition) {
+    public void updateDeliveriesPositions(@RequestBody UnitDeliveriesPositionDTO unitDeliveriesPosition) {
         try {
             unitDeliveriesPositionService.update(unitDeliveriesPosition);
         }catch(Exception e){
@@ -123,34 +123,38 @@ public class UnitController {
     }
 
     @GetMapping("units/production/{unitId}")
-    public List<UnitProductions> getProductions(@PathVariable("unitId") Long unitId) {
-        return unitService.get(unitId).getUnitProductionWorks();
+    public Set<UnitProductionsDTO> getProductions(@PathVariable("unitId") Long unitId) {
+        UnitDTO unitDTO = unitService.get(unitId);
+        unitDTO.getUnitProductionsDTO().forEach(value->{
+            value.setUnitDTO(unitDTO);
+        });
+        return unitDTO.getUnitProductionsDTO();
     }
 
     @PostMapping("/units/production")
-    public void saveProduction(@RequestBody UnitProductions unitProductions) {
+    public void saveProduction(@RequestBody UnitProductionsDTO unitProductions) {
         try {
             unitProductionService.save(unitProductions);
        }catch(Exception e){
-           System.out.println("error input");
+           throw new IllegalArgumentException("/units/production");
         }
     }
 
     @GetMapping("units/productionPosition/{productionId}")
-    public Set<UnitProductionPosition> getUnitProductionPosition(@PathVariable("productionId") Long productionId) {
-        return unitProductionService.get(productionId).getUnitProductionPositions();
+    public Set<UnitProductionPositionDTO> getUnitProductionPosition(@PathVariable("productionId") Long productionId) {
+        return unitProductionService.get(productionId).getUnitProductionPositionsDTO();
     }
 
     @PostMapping("/units/productionPosition")
-    public void setUnitProductionPosition(@RequestBody UnitProductionPosition unitProductionPosition) {
+    public void setUnitProductionPosition(@RequestBody UnitProductionPositionDTO unitProductionPosition) {
         try {
             unitProductionPositionService.save(unitProductionPosition);
         }catch(Exception e){
-            System.out.println("error input");
+            throw new IllegalArgumentException("/units/productionPosition");
         }
     }
     @PutMapping("/units/productionPosition")
-    public void updateUnitProductionPosition(@RequestBody UnitProductionPosition unitProductionPosition) {
+    public void updateUnitProductionPosition(@RequestBody UnitProductionPositionDTO unitProductionPosition) {
         try {
             unitProductionPositionService.update(unitProductionPosition);
         }catch(Exception e){
@@ -167,7 +171,7 @@ public class UnitController {
         }
     }
     @GetMapping("units/productionPosition/byUnitId/{unitId}")
-    public Set<Worker> getUnitProductionPositionWorkerByUnitId(@PathVariable("unitId") Long unitId) {
+    public Set<WorkerDTO> getUnitProductionPositionWorkerByUnitId(@PathVariable("unitId") Long unitId) {
         return unitProductionPositionService.getWorker(unitId);
     }
     @GetMapping("/units/reports/{unitId}")
@@ -176,12 +180,12 @@ public class UnitController {
     }
 
     @GetMapping("units/upkeep/{unitId}")
-    public Set<UnitUpkeep> getUnitUpkeep(@PathVariable("unitId") Long unitId) {
-        return unitService.get(unitId).getUnitUpkeeps();
+    public Set<UnitUpkeepDTO> getUnitUpkeep(@PathVariable("unitId") Long unitId) {
+        return unitService.get(unitId).getUnitUpkeepsDTO();
     }
 
     @PostMapping("/units/upkeep")
-    public void setUnitUpkeep(@RequestBody UnitUpkeep unitUpkeep) {
+    public void setUnitUpkeep(@RequestBody UnitUpkeepDTO unitUpkeep) {
         try {
             unitUpkeepService.save(unitUpkeep);
         }catch(Exception e){
@@ -199,12 +203,12 @@ public class UnitController {
     }
 
     @GetMapping("units/unitEquipmentRental/{unitId}")
-    public Set<UnitEquipmentRental> getUnitEquipmentRental(@PathVariable("unitId") Long unitId) {
-        return unitService.get(unitId).getUnitEquipmentRentals();
+    public Set<UnitEquipmentRentalDTO> getUnitEquipmentRental(@PathVariable("unitId") Long unitId) {
+        return unitService.get(unitId).getUnitEquipmentRentalsDTO();
     }
 
     @PostMapping("/units/unitEquipmentRental")
-    public void setUnitEquipmentRental(@RequestBody UnitEquipmentRental unitEquipmentRental) {
+    public void setUnitEquipmentRental(@RequestBody UnitEquipmentRentalDTO unitEquipmentRental) {
         try {
             unitEquipmentRentalService.save(unitEquipmentRental);
         }catch(Exception e){

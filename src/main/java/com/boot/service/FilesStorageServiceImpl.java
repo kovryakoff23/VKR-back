@@ -1,6 +1,6 @@
 package com.boot.service;
 
-import com.boot.entity.Documentation;
+import com.boot.DTO.DocumentationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -41,7 +41,7 @@ public class FilesStorageServiceImpl implements FilesStorageService {
     public void save(MultipartFile file, String unitId) {
         try {
             Files.copy(file.getInputStream(), this.root.resolve(file.getOriginalFilename()));
-            documentationService.save(new Documentation(
+            documentationService.save(new DocumentationDTO(
                     file.getOriginalFilename(),
                     unitService.get(Long.parseLong(unitId))));
         } catch (Exception e) {
@@ -77,8 +77,8 @@ public class FilesStorageServiceImpl implements FilesStorageService {
     @Override
     public Stream<Path> loadAllById(Long unitId) {
         try {
-            Set<String> fileNames = unitService.get(unitId).getDocumentations().stream()
-                    .map(Documentation::getName).collect(Collectors.toSet());
+            Set<String> fileNames = unitService.get(unitId).getDocumentationsDTO().stream()
+                    .map(DocumentationDTO::getName).collect(Collectors.toSet());
             return Files.walk(this.root, 1)
                     .filter(path -> !path.equals(this.root))
                     .filter(path -> fileNames.contains(path.getName(1).getFileName().toString()))

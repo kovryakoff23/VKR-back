@@ -1,9 +1,7 @@
 package com.boot.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -12,7 +10,8 @@ import java.util.Date;
 
 @Entity
 @Table(name = "SalaryWorker")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class SalaryWorker {
@@ -34,17 +33,6 @@ public class SalaryWorker {
     @OneToOne(mappedBy = "salaryWorker",cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.CASCADE)
     UnitProductionPosition unitProductionPosition;
-
-    public SalaryWorker(Date dateSalary, String unitName, String namePosition, boolean status,
-                        Long sumSalary, Worker worker, UnitProductionPosition unitProductionPosition) {
-        this.dateSalary = dateSalary;
-        this.unitName = unitName;
-        this.namePosition = namePosition;
-        this.status = status;
-        this.sumSalary = sumSalary;
-        this.worker = worker;
-        this.unitProductionPosition = unitProductionPosition;
-    }
 
     public SalaryWorker(Date dateSalary, Date dateExecution, String unitName, String namePosition,
                         boolean statusExecution, boolean status, Long sumSalary,

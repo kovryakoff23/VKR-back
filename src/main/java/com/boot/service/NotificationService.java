@@ -1,35 +1,41 @@
 package com.boot.service;
 
-import com.boot.entity.Notification;
+import com.boot.DTO.NotificationDTO;
+import com.boot.mapstruct.NotificationMapper;
 import com.boot.repository.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
-public class NotificationService implements ServiceMag<Notification> {
+public class NotificationService implements ServiceMag<NotificationDTO> {
 
     NotificationRepository notificationRepository;
+    NotificationMapper notificationMapper;
 
     @Autowired
-    public NotificationService(NotificationRepository notificationRepository) {
+    public NotificationService(NotificationRepository notificationRepository, NotificationMapper notificationMapper) {
         this.notificationRepository = notificationRepository;
+        this.notificationMapper = notificationMapper;
     }
 
     @Override
-    public Notification get(long id) {
-        return notificationRepository.findById(id).orElseThrow(IllegalArgumentException::new);
+    public NotificationDTO get(long id) {
+        return notificationMapper.toDTO(notificationRepository.findById(id).orElseThrow(IllegalArgumentException::new));
     }
 
     @Override
-    public List<Notification> getAll() {
-        return notificationRepository.findAll();
+    public List<NotificationDTO> getAll() {
+        return notificationRepository.findAll().stream()
+                .map(value -> notificationMapper.toDTO(value))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public void save(Notification entity) {
-        notificationRepository.save(entity);
+    public void save(NotificationDTO entity) {
+        notificationRepository.save(notificationMapper.toEntity(entity));
     }
 
     @Override

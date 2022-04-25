@@ -1,16 +1,15 @@
 package com.boot.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.*;
 
 @Entity
 @Table(name = "UnitProductions")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class UnitProductions {
@@ -27,7 +26,7 @@ public class UnitProductions {
     @JoinColumn (name="unit_id")
     private Unit unit;
     @JsonIgnore
-    @OneToMany (mappedBy="unitProductionWorks", orphanRemoval = true)
+    @OneToMany (mappedBy="unitProductions", orphanRemoval = true)
     private Set<UnitProductionPosition> unitProductionPositions = new HashSet<>();
 
 }

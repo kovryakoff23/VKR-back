@@ -1,40 +1,41 @@
 package com.boot.service;
 
-import com.boot.entity.Suppliers;
-import com.boot.entity.Unit;
-import com.boot.entity.Worker;
-import com.boot.repository.UnitRepository;
+import com.boot.DTO.WorkerDTO;
+import com.boot.mapstruct.WorkerMapper;
 import com.boot.repository.WorkerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
-public class WorkerService implements ServiceMag<Worker> {
+public class WorkerService implements ServiceMag<WorkerDTO> {
 
     WorkerRepository workerRepository;
 
+    WorkerMapper workerMapper;
     @Autowired
-    public WorkerService(WorkerRepository workerRepository) {
+    public WorkerService(WorkerRepository workerRepository, WorkerMapper workerMapper) {
         this.workerRepository = workerRepository;
+        this.workerMapper = workerMapper;
     }
 
     @Override
-    public Worker get(long id) {
-        return workerRepository.findById(id).orElseThrow(IllegalArgumentException::new);
+    public WorkerDTO get(long id) {
+        return workerMapper.toDTO(workerRepository.findById(id).orElseThrow(IllegalArgumentException::new));
     }
 
     @Override
-    public List<Worker> getAll() {
-        return workerRepository.findAll();
+    public List<WorkerDTO> getAll() {
+        return workerRepository.findAll().stream()
+                .map(value->workerMapper.toDTO(value))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public void save(Worker entity) {
-        workerRepository.save(entity);
+    public void save(WorkerDTO workerDTO) {
+        workerRepository.save(workerMapper.toEntity(workerDTO));
     }
 
     @Override
@@ -42,8 +43,10 @@ public class WorkerService implements ServiceMag<Worker> {
         workerRepository.deleteById(id);
     }
 
-    public List<Worker> getAllSearch(String search) {
+    public List<WorkerDTO> getAllSearch(String search) {
         search=search+"%";
-        return workerRepository.findByName(search);
+        return workerRepository.findByName(search).stream()
+                .map(value->workerMapper.toDTO(value))
+                .collect(Collectors.toList());
     }
 }

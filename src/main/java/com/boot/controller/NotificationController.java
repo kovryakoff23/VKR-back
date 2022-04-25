@@ -1,14 +1,14 @@
 package com.boot.controller;
 
-import com.boot.entity.Notification;
-import com.boot.entity.UnitProductionPosition;
-import com.boot.entity.UnitProductions;
+import com.boot.DTO.NotificationDTO;
 import com.boot.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
@@ -22,7 +22,7 @@ public class NotificationController {
     }
 
     @GetMapping("notification")
-    public List<Notification> getNotification() {
+    public List<NotificationDTO> getNotification() {
         return notificationService.getAll();
     }
 
