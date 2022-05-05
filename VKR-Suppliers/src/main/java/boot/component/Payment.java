@@ -1,7 +1,6 @@
-package com.boot.component;
+package boot.component;
 
-import com.boot.entity.Suppliers;
-import com.boot.entity.Worker;
+import boot.entity.Suppliers;
 import org.springframework.stereotype.Component;
 
 @Component

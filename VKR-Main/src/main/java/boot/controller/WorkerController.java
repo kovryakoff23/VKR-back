@@ -10,6 +10,7 @@ import boot.service.SalaryWorkerService;
 import boot.service.WorkerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -17,7 +18,8 @@ import java.util.List;
 import java.util.Set;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "*", maxAge = 3600)
+@RequestMapping()
 public class WorkerController {
     WorkerService workerService;
     PricingWorkerService pricingWorkerService;
@@ -33,30 +35,36 @@ public class WorkerController {
     }
 
     @GetMapping("/workersSalary")
+    @PreAuthorize("hasRole('USER')")
     public Set<Salary> getWorkerSalary() {
         return  salaryService.getAll();
     }
     @RequestMapping(value="/workersSalary/" , method=RequestMethod.GET)
+    @PreAuthorize("hasRole('USER')")
     @ResponseBody
     public Set<Salary> getWorkerSalaryByDate(@RequestParam("dateStartSalary") @DateTimeFormat(pattern="yyyy-MM-dd") Date dateStartSalary,
                                              @RequestParam("dateEndSalary") @DateTimeFormat(pattern="yyyy-MM-dd") Date dateEndSalary) {
         return salaryService.getAllByDate(dateStartSalary,dateEndSalary);
     }
-    @GetMapping("/workers")
+    @GetMapping("workers")
+    @PreAuthorize("hasRole('USER')")
     public List<WorkerDTO> getWorker() {
         return  workerService.getAll();
     }
     @GetMapping("/workers/search/{search}")
+    @PreAuthorize("hasRole('USER')")
     public List<WorkerDTO> Worker(@PathVariable("search") String search) {
         return  workerService.getAllSearch(search);
 
     }
-    @GetMapping("/workers/{workerId}")
+    @GetMapping("workers/{workerId}")
+    @PreAuthorize("hasRole('USER')")
     public WorkerDTO getWorker(@PathVariable("workerId") Long workerId) {
         return workerService.get(workerId);
     }
 
-    @PostMapping("/workers")
+    @PostMapping("workers")
+    @PreAuthorize("hasRole('USER')")
     public void saveWorker(@RequestBody WorkerDTO worker) {
         try {
             workerService.save(worker);
@@ -65,6 +73,7 @@ public class WorkerController {
         }
     }
     @DeleteMapping("/workers/{workerId}")
+    @PreAuthorize("hasRole('USER')")
     public void deleteWorker(@PathVariable("workerId") Long workerId) {
         try {
             workerService.delete(workerId);
@@ -74,14 +83,17 @@ public class WorkerController {
     }
 
     @GetMapping("/workerDetails/{pricingWorkerId}")
+    @PreAuthorize("hasRole('USER')")
     public Set<PricingWorkerDTO> getPricingWorker(@PathVariable("pricingWorkerId") Long pricingWorkerId) {
         return workerService.get(pricingWorkerId).getPricingWorkersDTO();
     }
     @GetMapping("/workerDetails/byId/{pricingWorkerId}")
+    @PreAuthorize("hasRole('USER')")
     public PricingWorkerDTO getPricingWorkerById(@PathVariable("pricingWorkerId") Long pricingWorkerId) {
         return pricingWorkerService.get(pricingWorkerId);
     }
     @PostMapping("/workerDetails")
+    @PreAuthorize("hasRole('USER')")
     public void savePricingWorker(@RequestBody PricingWorkerDTO pricingWorker) {
         try {
             pricingWorkerService.save(pricingWorker);
@@ -90,18 +102,22 @@ public class WorkerController {
         }
     }
     @DeleteMapping("/workerDetails/{workerDetailsId}")
+    @PreAuthorize("hasRole('USER')")
     public void deletePricingWorker(@PathVariable("workerDetailsId") Long workerDetailsId) {
             pricingWorkerService.delete(workerDetailsId);
     }
     @GetMapping("/worker/salary/{workerId}")
+    @PreAuthorize("hasRole('USER')")
     public Set<SalaryWorkerDTO> getSalaryWorker(@PathVariable("workerId") Long workerId) {
         return workerService.get(workerId).getSalaryWorkersDTO();
     }
     @GetMapping("/worker/salary")
+    @PreAuthorize("hasRole('USER')")
     public List<SalaryWorkerDTO> getSalaryWorkerHistory() {
         return salaryWorkerService.getAll();
     }
     @PostMapping("/worker/salary/")
+    @PreAuthorize("hasRole('USER')")
     public void saveSalaryWorker(@RequestBody SalaryWorkerDTO salaryWorker) {
         try {
             salaryWorkerService.save(salaryWorker);
@@ -110,6 +126,7 @@ public class WorkerController {
         }
     }
     @PutMapping("/worker/salary/")
+    @PreAuthorize("hasRole('USER')")
     public void updateSalaryWorker(@RequestBody SalaryWorkerDTO salaryWorker) {
         try {
             salaryWorkerService.update(salaryWorker);
@@ -118,6 +135,7 @@ public class WorkerController {
         }
     }
     @DeleteMapping("/worker/salary/{salaryWorkerId}")
+    @PreAuthorize("hasRole('USER')")
     public void deleteSalaryWorker(@PathVariable("salaryWorkerId") Long salaryWorkerId) {
         try {
             salaryWorkerService.delete(salaryWorkerId);
@@ -126,6 +144,7 @@ public class WorkerController {
         }
     }
     @RequestMapping(value="/worker/salary/" , method=RequestMethod.GET)
+    @PreAuthorize("hasRole('USER')")
     @ResponseBody
     public Set<SalaryWorkerDTO> getSalaryWorkerByDate(@RequestParam("dateStartSalary") @DateTimeFormat(pattern="yyyy-MM-dd") Date dateStartSalary,
                                              @RequestParam("dateEndSalary") @DateTimeFormat(pattern="yyyy-MM-dd") Date dateEndSalary,
