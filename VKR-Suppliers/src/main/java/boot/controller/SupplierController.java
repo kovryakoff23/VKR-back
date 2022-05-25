@@ -51,6 +51,8 @@ public class SupplierController {
     public List<SuppliersDTO> getSupplier() {
         return  suppliersService.getAll();
     }
+
+
     @GetMapping("/suppliers/search/{search}")
     public List<SuppliersDTO> Suppliers(@PathVariable("search") String search) {
         return  suppliersService.getAllSearch(search);
